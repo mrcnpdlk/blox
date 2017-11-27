@@ -1,5 +1,5 @@
 {
-    "name": "eloquent/blox",
+    "name": "mrcnpdlk/blox",
     "description": "A parser for block comment documentation.",
     "keywords": ["documentation", "parser", "comment", "block", "docblock", "phpdoc", "phpdocumentor", "annotation", "tag"],
     "homepage": "https://github.com/eloquent/blox",

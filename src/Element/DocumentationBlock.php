@@ -16,12 +16,16 @@ namespace Eloquent\Blox\Element;
  */
 class DocumentationBlock
 {
+    private $tags;
+    private $summary;
+    private $body;
+
     /**
      * Construct a new documentation block.
      *
-     * @param array<DocumentationTag>|null $tags    The tags contained in the block.
-     * @param string|null                  $summary The summary text.
-     * @param string|null                  $body    The body text.
+     * @param             array    <DocumentationTag>|null $tags    The tags contained in the block.
+     * @param string|null $summary The summary text.
+     * @param string|null $body    The body text.
      */
     public function __construct(
         array $tags = null,
@@ -29,12 +33,44 @@ class DocumentationBlock
         $body = null
     ) {
         if (null === $tags) {
-            $tags = array();
+            $tags = [];
         }
 
-        $this->tags = $tags;
+        $this->tags    = $tags;
         $this->summary = $summary;
-        $this->body = $body;
+        $this->body    = $body;
+    }
+
+    /**
+     * Visit this block.
+     *
+     * @param DocumentationVisitorInterface $visitor The visitor to accept.
+     *
+     * @return mixed The visitor's result.
+     */
+    public function accept(DocumentationVisitorInterface $visitor)
+    {
+        return $visitor->visitDocumentationBlock($this);
+    }
+
+    /**
+     * Get the body text.
+     *
+     * @return string|null The body text.
+     */
+    public function body()
+    {
+        return $this->body;
+    }
+
+    /**
+     * Get the summary text.
+     *
+     * @return string|null The summary text.
+     */
+    public function summary()
+    {
+        return $this->summary;
     }
 
     /**
@@ -56,7 +92,7 @@ class DocumentationBlock
      */
     public function tagsByName($name)
     {
-        $tags = array();
+        $tags = [];
         foreach ($this->tags() as $tag) {
             if ($name === $tag->name()) {
                 $tags[] = $tag;
@@ -65,40 +101,4 @@ class DocumentationBlock
 
         return $tags;
     }
-
-    /**
-     * Get the summary text.
-     *
-     * @return string|null The summary text.
-     */
-    public function summary()
-    {
-        return $this->summary;
-    }
-
-    /**
-     * Get the body text.
-     *
-     * @return string|null The body text.
-     */
-    public function body()
-    {
-        return $this->body;
-    }
-
-    /**
-     * Visit this block.
-     *
-     * @param DocumentationVisitorInterface $visitor The visitor to accept.
-     *
-     * @return mixed The visitor's result.
-     */
-    public function accept(DocumentationVisitorInterface $visitor)
-    {
-        return $visitor->visitDocumentationBlock($this);
-    }
-
-    private $tags;
-    private $summary;
-    private $body;
 }

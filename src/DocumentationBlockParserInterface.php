@@ -21,7 +21,7 @@ interface DocumentationBlockParserInterface
      *
      * @param string $blockComment The documentation block comment.
      *
-     * @return DocumentationBlock The parsed documentation block object.
+     * @return \Eloquent\Blox\Element\DocumentationBlock The parsed documentation block object.
      */
     public function parseBlockComment($blockComment);
 }

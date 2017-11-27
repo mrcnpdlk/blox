@@ -16,6 +16,9 @@ namespace Eloquent\Blox\Element;
  */
 class DocumentationTag
 {
+    private $name;
+    private $content;
+
     /**
      * Construct a new documentation tag.
      *
@@ -24,28 +27,8 @@ class DocumentationTag
      */
     public function __construct($name, $content = null)
     {
-        $this->name = $name;
+        $this->name    = $name;
         $this->content = $content;
-    }
-
-    /**
-     * Get the tag name.
-     *
-     * @return string The tag name.
-     */
-    public function name()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Get the tag content.
-     *
-     * @return string|null The tag content.
-     */
-    public function content()
-    {
-        return $this->content;
     }
 
     /**
@@ -60,6 +43,23 @@ class DocumentationTag
         return $visitor->visitDocumentationTag($this);
     }
 
-    private $name;
-    private $content;
+    /**
+     * Get the tag content.
+     *
+     * @return string|null The tag content.
+     */
+    public function content()
+    {
+        return $this->content;
+    }
+
+    /**
+     * Get the tag name.
+     *
+     * @return string The tag name.
+     */
+    public function name()
+    {
+        return $this->name;
+    }
 }

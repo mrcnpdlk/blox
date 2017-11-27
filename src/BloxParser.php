@@ -21,7 +21,7 @@ class BloxParser implements DocumentationBlockParserInterface
      *
      * @param string $blockComment The documentation block comment.
      *
-     * @return DocumentationBlock The parsed documentation block object.
+     * @return \Eloquent\Blox\Element\DocumentationBlock The parsed documentation block object.
      */
     public function parseBlockComment($blockComment)
     {
@@ -35,77 +35,39 @@ class BloxParser implements DocumentationBlockParserInterface
     }
 
     /**
+     * @param array $blockCommentLines
+     *
+     * @return string|null
+     */
+    protected function parseBlockCommentBody(array $blockCommentLines)
+    {
+        $body = '';
+        foreach ($blockCommentLines as $index => $blockCommentLine) {
+            $body .= $blockCommentLine . "\n";
+        }
+
+        if ('' === $body) {
+            $body = null;
+        } else {
+            $body = trim($body);
+        }
+
+        return $body;
+    }
+
+    /**
      * @param string $blockComment
      *
      * @return array
      */
     protected function parseBlockCommentLines($blockComment)
     {
-        $lines = array();
+        $lines = [];
         if (preg_match_all('~^\s*\* ?(?!/)(.*)$~m', $blockComment, $matches)) {
             $lines = $matches[1];
         }
 
         return $lines;
-    }
-
-    /**
-     * @param array &$blockCommentLines
-     *
-     * @return DocumentationTags
-     */
-    protected function parseBlockCommentTags(array &$blockCommentLines)
-    {
-        $tags = array();
-        $currentTagName = $currentTagContent = null;
-        foreach ($blockCommentLines as $index => $blockCommentLine) {
-            $isTagLine = preg_match(
-                '~^@(\w+)(?:\s+(.*))?\s*$~',
-                $blockCommentLine,
-                $matches
-            );
-            $isEmptyLine = '' === trim($blockCommentLine);
-
-            if (
-                ($isTagLine || $isEmptyLine) &&
-                null !== $currentTagName
-            ) {
-                if ('' === $currentTagContent) {
-                    $currentTagContent = null;
-                }
-                $tags[] = new Element\DocumentationTag(
-                    $currentTagName,
-                    $currentTagContent
-                );
-
-                $currentTagName = $currentTagContent = null;
-            }
-
-            if ($isTagLine) {
-                $currentTagName = $matches[1];
-                $currentTagContent = '';
-                if (array_key_exists(2, $matches)) {
-                    $currentTagContent = $matches[2];
-                }
-            } elseif (!$isEmptyLine) {
-                $currentTagContent .= ' ' . ltrim($blockCommentLine);
-            }
-
-            if (null !== $currentTagName || count($tags) > 0) {
-                unset($blockCommentLines[$index]);
-            }
-        }
-        if (null !== $currentTagName) {
-            if ('' === $currentTagContent) {
-                $currentTagContent = null;
-            }
-            $tags[] = new Element\DocumentationTag(
-                $currentTagName,
-                $currentTagContent
-            );
-        }
-
-        return $tags;
     }
 
     /**
@@ -139,23 +101,61 @@ class BloxParser implements DocumentationBlockParserInterface
     }
 
     /**
-     * @param array $blockCommentLines
+     * @param array &$blockCommentLines
      *
-     * @return string|null
+     * @return \Eloquent\Blox\Element\DocumentationTag[]
      */
-    protected function parseBlockCommentBody(array $blockCommentLines)
+    protected function parseBlockCommentTags(array &$blockCommentLines)
     {
-        $body = '';
+        $tags           = [];
+        $currentTagName = $currentTagContent = null;
         foreach ($blockCommentLines as $index => $blockCommentLine) {
-            $body .= $blockCommentLine . "\n";
+            $isTagLine   = preg_match(
+                '~^@(\w+)(?:\s+(.*))?\s*$~',
+                $blockCommentLine,
+                $matches
+            );
+            $isEmptyLine = '' === trim($blockCommentLine);
+
+            if (
+                ($isTagLine || $isEmptyLine) &&
+                null !== $currentTagName
+            ) {
+                if ('' === $currentTagContent) {
+                    $currentTagContent = null;
+                }
+                $tags[] = new Element\DocumentationTag(
+                    $currentTagName,
+                    $currentTagContent
+                );
+
+                $currentTagName = $currentTagContent = null;
+            }
+
+            if ($isTagLine) {
+                $currentTagName    = $matches[1];
+                $currentTagContent = '';
+                if (array_key_exists(2, $matches)) {
+                    $currentTagContent = $matches[2];
+                }
+            } elseif (!$isEmptyLine) {
+                $currentTagContent .= ' ' . ltrim($blockCommentLine);
+            }
+
+            if (null !== $currentTagName || count($tags) > 0) {
+                unset($blockCommentLines[$index]);
+            }
+        }
+        if (null !== $currentTagName) {
+            if ('' === $currentTagContent) {
+                $currentTagContent = null;
+            }
+            $tags[] = new Element\DocumentationTag(
+                $currentTagName,
+                $currentTagContent
+            );
         }
 
-        if ('' === $body) {
-            $body = null;
-        } else {
-            $body = trim($body);
-        }
-
-        return $body;
+        return $tags;
     }
 }
